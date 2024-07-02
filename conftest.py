@@ -1,12 +1,10 @@
 """
-The conftest.py file in pytest is used to write fixtures
-that are shared across multiple files, modules, or sessions.
-It's a way to provide a set of setup functions or hooks for your tests.
-The name conftest.py is a standard name recognized by pytest,
+The conftest.py file in pytest is used to write fixtures 
+that are shared across multiple files, modules, or sessions. 
+It's a way to provide a set of setup functions or hooks for your tests. 
+The name conftest.py is a standard name recognized by pytest, 
 and it will automatically discover these files in your test directories.
 """
-
-import pytest
 
 def pytest_runtest_protocol(item, nextitem):
     """
@@ -14,17 +12,17 @@ def pytest_runtest_protocol(item, nextitem):
 
     Args:
         item (pytest.Item): The test item.
-        nextitem (pytest.Item): The next test item.
+        nextitem (pytest.Item): The next test item (unused).
 
     This hook checks if the test function has a requirement attribute
     and prints a message indicating which test is being run and its
     associated requirement.
     """
+    del nextitem  # Handle the unused argument
     if hasattr(item, 'function') and hasattr(item.function, 'requirement'):
         print(
             f"Running test {item.nodeid} with requirement {item.function.requirement}"
         )
-    return None  # continue with the default test protocol
 
 def pytest_runtest_makereport(item, call):
     """
@@ -49,7 +47,10 @@ def pytest_runtest_makereport(item, call):
                 result = 'FAIL'
         else:
             result = 'PASS'
-        item.config.traceability_matrix[item.nodeid] = (item.function.requirement, result)
+        item.config.traceability_matrix[item.nodeid] = (
+            item.function.requirement,
+            result
+        )
 
 def pytest_sessionstart(session):
     """
@@ -68,11 +69,12 @@ def pytest_sessionfinish(session, exitstatus):
 
     Args:
         session (pytest.Session): The pytest session.
-        exitstatus (int): The exit status of the session.
+        exitstatus (int): The exit status of the session (unused).
 
     This hook prints the traceability_matrix, which shows the result of
     each test and its associated requirement.
     """
+    del exitstatus  # Handle the unused argument
     print("Traceability Matrix:")
     for test, (requirement, result) in session.config.traceability_matrix.items():
         print(f"{test}: {requirement}, {result}")
